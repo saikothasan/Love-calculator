@@ -4,16 +4,18 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Heart, Sparkles, RefreshCw } from 'lucide-react'
+import { Heart, Sparkles, RefreshCw, Share2 } from 'lucide-react'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { LoveQuote } from '@/components/LoveQuote'
 import { CompatibilityChart } from '@/components/CompatibilityChart'
+import { NameAnalysis } from '@/components/NameAnalysis'
+import { CompatibilityTimeline } from '@/components/CompatibilityTimeline'
 import confetti from 'canvas-confetti'
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/hooks/use-toast"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LoveCalculator() {
   const [name1, setName1] = useState('')
@@ -94,6 +96,26 @@ export default function LoveCalculator() {
     if (index1 === -1 || index2 === -1) return 50 // Default to neutral if signs are invalid
     const difference = Math.abs(index1 - index2)
     return 100 - (difference * 100 / 6) // 0 difference = 100% compatibility, 6 difference = 0% compatibility
+  }
+
+  const shareResult = () => {
+    if (result !== null) {
+      const text = `I just calculated my love compatibility with ${name2} and got ${result}%! Try it yourself!`
+      if (navigator.share) {
+        navigator.share({
+          title: 'Love Calculator Result',
+          text: text,
+          url: window.location.href,
+        })
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(text + ' ' + window.location.href)
+        toast({
+          title: "Copied to clipboard!",
+          description: "Share your result with friends!",
+        })
+      }
+    }
   }
 
   return (
@@ -219,26 +241,44 @@ export default function LoveCalculator() {
         <CardFooter className="flex flex-col items-center">
           {showResult && result !== null && (
             <div className="w-full space-y-4 animate-fade-in-up">
-              <p className="text-center font-semibold text-pink-700">Your love compatibility:</p>
-              <CompatibilityChart result={result} />
+              <Tabs defaultValue="chart" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="chart">Chart</TabsTrigger>
+                  <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                </TabsList>
+                <TabsContent value="chart">
+                  <CompatibilityChart result={result} />
+                </TabsContent>
+                <TabsContent value="analysis">
+                  <NameAnalysis name1={name1} name2={name2} />
+                </TabsContent>
+                <TabsContent value="timeline">
+                  <CompatibilityTimeline name1={name1} name2={name2} />
+                </TabsContent>
+              </Tabs>
               <p className="text-center text-4xl font-bold text-pink-600">{result}% {getResultEmoji(result)}</p>
               <p className="text-center text-sm text-pink-700 font-medium">
                 {getResultMessage(result)}
               </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => {
-                  setShowResult(false)
-                  setName1('')
-                  setName2('')
-                  setZodiac1('')
-                  setZodiac2('')
-                  setLuckFactor(50)
-                }}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" /> Try Again
-              </Button>
+              <div className="flex justify-center space-x-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowResult(false)
+                    setName1('')
+                    setName2('')
+                    setZodiac1('')
+                    setZodiac2('')
+                    setLuckFactor(50)
+                  }}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+                </Button>
+                <Button onClick={shareResult}>
+                  <Share2 className="mr-2 h-4 w-4" /> Share Result
+                </Button>
+              </div>
             </div>
           )}
         </CardFooter>

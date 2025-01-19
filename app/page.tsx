@@ -1,101 +1,138 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Heart, Sparkles } from 'lucide-react'
+import { AnimatedBackground } from '@/components/AnimatedBackground'
+import confetti from 'canvas-confetti'
+
+export default function LoveCalculator() {
+  const [name1, setName1] = useState('')
+  const [name2, setName2] = useState('')
+  const [result, setResult] = useState<number | null>(null)
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [showResult, setShowResult] = useState(false)
+
+  useEffect(() => {
+    if (result !== null && result > 80) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      })
+    }
+  }, [result])
+
+  const calculateLove = () => {
+    setIsCalculating(true)
+    setShowResult(false)
+    // Simulate a complex calculation
+    setTimeout(() => {
+      const combinedNames = (name1 + name2).toLowerCase()
+      let sum = 0
+      for (let i = 0; i < combinedNames.length; i++) {
+        sum += combinedNames.charCodeAt(i)
+      }
+      const lovePercentage = (sum % 101) // 0-100 range
+      setResult(lovePercentage)
+      setIsCalculating(false)
+      setShowResult(true)
+    }, 3000)
+  }
+
+  const getResultMessage = (score: number) => {
+    if (score < 30) return "Not a great match, but love can conquer all! Keep an open heart."
+    if (score < 50) return "There's potential here. Give it time and see where it leads!"
+    if (score < 70) return "A promising connection! You two have a good chance at happiness."
+    if (score < 90) return "Wow! You two have an amazing compatibility. Cherish each other!"
+    return "Soulmates alert! Your love is written in the stars!"
+  }
+
+  const getResultEmoji = (score: number) => {
+    if (score < 30) return "💔"
+    if (score < 50) return "💖"
+    if (score < 70) return "💘"
+    if (score < 90) return "💞"
+    return "💯"
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div className="min-h-screen bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 flex items-center justify-center p-4">
+      <AnimatedBackground />
+      <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold text-center text-pink-600 flex items-center justify-center gap-2">
+            <Heart className="text-red-500 animate-pulse" />
+            Love Calculator
+            <Heart className="text-red-500 animate-pulse" />
+          </CardTitle>
+          <CardDescription className="text-center text-pink-700">
+            Discover your love compatibility with a touch of magic!
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="name1" className="text-sm font-medium text-pink-700">Your Name</label>
+            <Input
+              id="name1"
+              placeholder="Enter your name"
+              value={name1}
+              onChange={(e) => setName1(e.target.value)}
+              className="border-pink-300 focus:ring-pink-500"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="name2" className="text-sm font-medium text-pink-700">Your Crush's Name</label>
+            <Input
+              id="name2"
+              placeholder="Enter your crush's name"
+              value={name2}
+              onChange={(e) => setName2(e.target.value)}
+              className="border-pink-300 focus:ring-pink-500"
+            />
+          </div>
+          <Button 
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
+            onClick={calculateLove}
+            disabled={!name1 || !name2 || isCalculating}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {isCalculating ? (
+              <span className="flex items-center">
+                <Sparkles className="animate-spin mr-2" />
+                Calculating Love...
+              </span>
+            ) : (
+              <span className="flex items-center">
+                <Heart className="mr-2" />
+                Calculate Love
+              </span>
+            )}
+          </Button>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          {showResult && result !== null && (
+            <div className="w-full space-y-4 animate-fade-in-up">
+              <p className="text-center font-semibold text-pink-700">Your love compatibility:</p>
+              <div className="relative pt-1">
+                <div className="overflow-hidden h-4 text-xs flex rounded-full bg-pink-200">
+                  <div 
+                    style={{ width: `${result}%` }}
+                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-1000 ease-out"
+                  ></div>
+                </div>
+              </div>
+              <p className="text-center text-4xl font-bold text-pink-600">{result}% {getResultEmoji(result)}</p>
+              <p className="text-center text-sm text-pink-700 font-medium">
+                {getResultMessage(result)}
+              </p>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
     </div>
-  );
+  )
 }
+

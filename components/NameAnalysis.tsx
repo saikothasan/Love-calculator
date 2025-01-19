@@ -13,8 +13,8 @@ export function NameAnalysis({ name1, name2 }: NameAnalysisProps) {
   useEffect(() => {
     const set1 = new Set(name1.toLowerCase())
     const set2 = new Set(name2.toLowerCase())
-    const intersection = new Set([...set1].filter(x => set2.has(x)))
-    setCommonLetters((intersection.size / Math.max(set1.size, set2.size)) * 100)
+    const commonCount = Array.from(set1).filter(char => set2.has(char)).length
+    setCommonLetters((commonCount / Math.max(set1.size, set2.size)) * 100)
 
     const maxLength = Math.max(name1.length, name2.length)
     const minLength = Math.min(name1.length, name2.length)
